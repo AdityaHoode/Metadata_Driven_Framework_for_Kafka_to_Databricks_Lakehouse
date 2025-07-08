@@ -1,0 +1,35 @@
+resources:
+  jobs:
+    PL_MDF3_SourceToBronze:
+      name: PL_MDF3_SourceToBronze
+      tasks:
+        - task_key: get_file_configs
+          notebook_task:
+            notebook_path: /Workspace/MDFs/Kafka to Lakehouse/NB_GetStreamMasterConfig
+            source: WORKSPACE
+          existing_cluster_id: 0505-091045-oow7glfg
+        - task_key: source_to_bronze
+          depends_on:
+            - task_key: get_file_configs
+          for_each_task:
+            inputs: "{{tasks.get_file_configs.values.mappings}}"
+            concurrency: 5
+            task:
+              task_key: source_to_bronze_iteration
+              notebook_task:
+                notebook_path: /Workspace/MDFs/Kafka to Lakehouse/NB_SourceToBronze
+                base_parameters:
+                  mappings: "{{input}}"
+                source: WORKSPACE
+              existing_cluster_id: 0505-091045-oow7glfg
+      queue:
+        enabled: true
+      parameters:
+        - name: catalog
+          default: mdf3
+        - name: JobName
+          default: "{{job.name}}"
+        - name: JobRunID
+          default: "{{job.id}}"
+        - name: schema
+          default: bronze
