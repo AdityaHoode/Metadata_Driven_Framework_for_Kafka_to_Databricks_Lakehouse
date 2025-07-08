@@ -1,0 +1,17 @@
+resources:
+  jobs:
+    PL_MDF3_Setup:
+      name: PL_MDF3_Setup
+      tasks:
+        - task_key: create_metadata_tables
+          notebook_task:
+            notebook_path: /Workspace/MDFs/Kafka to Lakehouse/NB_CreateMetadataTable
+            source: WORKSPACE
+          existing_cluster_id: 0505-091045-oow7glfg
+      queue:
+        enabled: true
+      parameters:
+        - name: catalog
+          default: mdf3
+        - name: schema
+          default: bronze
